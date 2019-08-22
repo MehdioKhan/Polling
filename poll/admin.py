@@ -1,3 +1,4 @@
 from django.contrib import admin
+from .models import Poll,Question,Answer,Choice,PollQuestion,QuestionChoice
 
-# Register your models here.
+admin.site.register([Poll,Question,PollQuestion,Answer,Choice,QuestionChoice])
