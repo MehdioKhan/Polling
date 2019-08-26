@@ -1,3 +1,14 @@
-from django.shortcuts import render
+from .models import Poll
+from .serializers import PollDetailsSerializer,PollListSerializer
+from rest_framework import generics
 
-# Create your views here.
+
+class PollList(generics.ListAPIView):
+    serializer_class = PollListSerializer
+    queryset = Poll.objects.all()
+
+
+class PollDetail(generics.RetrieveAPIView):
+    serializer_class = PollDetailsSerializer
+    lookup_field = 'pk'
+    queryset = Poll.objects.all()
