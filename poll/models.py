@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 
 class Poll(models.Model):
@@ -28,11 +29,21 @@ class Choice(models.Model):
         return '{0} - {1}'.format(self.text,str(self.value))
 
 
-class Answer(models.Model):
+class QuestionAnswer(models.Model):
     question = models.ForeignKey(to='Question',on_delete=models.CASCADE,
                                  related_name='answer')
     selected = models.ForeignKey(to='Choice',on_delete=models.CASCADE)
+    user = models.ForeignKey(to=User,on_delete=models.CASCADE)
     created = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.selected.text
+        return "{} selected {} for {}".format(self.user,self.selected.text,self.question.body)
+
+
+class PollAnswer(models.Model):
+    poll = models.ForeignKey(to='Poll',on_delete=models.CASCADE)
+    questions_answers = models.ManyToManyField(to='QuestionAnswer')
+    user = models.ForeignKey(to=User,on_delete=models.CASCADE)
+
+    def __str__(self):
+        return "{} answerd to {}".format(self.user,self.poll.name)
