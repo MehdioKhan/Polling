@@ -31,9 +31,9 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'account',
     'poll',
     'rest_framework',
-    'account',
     'rest_framework.authtoken',
     'django.contrib.admin',
     'django.contrib.auth',
