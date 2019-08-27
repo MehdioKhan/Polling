@@ -2,10 +2,9 @@ from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework.decorators import api_view,permission_classes
 from rest_framework.permissions import IsAuthenticated
-from .serializers import UserSignupSerializer,UserSerializer
+from .serializers import UserSignupSerializer,UserSerializer,UserAuthTokenSerializer
 from django.utils import timezone
 from rest_framework.authtoken.models import Token
-from rest_framework.authtoken.serializers import AuthTokenSerializer
 
 
 class UserSignup(generics.CreateAPIView):
@@ -14,7 +13,7 @@ class UserSignup(generics.CreateAPIView):
 
 @api_view(['POST'])
 def login(request):
-    serializer = AuthTokenSerializer(data=request.data)
+    serializer = UserAuthTokenSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
     user = serializer.validated_data['user']
     user.last_login = timezone.now()
