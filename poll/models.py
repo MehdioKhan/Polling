@@ -38,7 +38,7 @@ class QuestionAnswer(models.Model):
     created = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        unique_together = (('question','selected','user'),)
+        unique_together = (('question','user'),)
 
     def __str__(self):
         return "{} selected {} for {}".format(self.user,self.selected.text,self.question.body)
