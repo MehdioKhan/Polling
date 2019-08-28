@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from account.models import User
-
+from django.core.exceptions import ValidationError
 
 class Poll(models.Model):
     name = models.CharField(max_length=150,blank=False,null=False)
@@ -37,8 +37,18 @@ class QuestionAnswer(models.Model):
     user = models.ForeignKey(to=User,on_delete=models.CASCADE)
     created = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        unique_together = (('question','selected','user'),)
+
     def __str__(self):
         return "{} selected {} for {}".format(self.user,self.selected.text,self.question.body)
+
+    def full_clean(self, exclude=None, validate_unique=True):
+        valid_choices = self.question.choices.all()
+        if self.selected not in valid_choices:
+            raise ValidationError(
+                'Selected choice "{}" is not one of the permitted values {}'.format(self.selected,valid_choices))
+        super(QuestionAnswer,self).full_clean(exclude=exclude, validate_unique=validate_unique)
 
 
 class PollAnswer(models.Model):
@@ -47,4 +57,4 @@ class PollAnswer(models.Model):
     user = models.ForeignKey(to=User,on_delete=models.CASCADE)
 
     def __str__(self):
-        return "{} answerd to {}".format(self.user,self.poll.name)
+        return "{} answered to {}".format(self.user,self.poll.name)
