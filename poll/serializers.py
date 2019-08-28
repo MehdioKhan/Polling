@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from .models import Poll,Question,Choice
+from .models import Poll,Question,Choice,PollAnswer,QuestionAnswer
+from rest_framework.exceptions import ValidationError
 
 
 class ChoiceSerializer(serializers.ModelSerializer):
@@ -30,3 +31,17 @@ class PollListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Poll
         fields = ('pk','name')
+
+
+class QuestionAnswerSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = QuestionAnswer
+        fields = ('question','selected','user')
+
+    def validate(self, attrs):
+        valid_choices = attrs.get('question').choices.all()
+        if attrs.get('selected') not in valid_choices:
+            raise ValidationError(
+                        'Selected choice "{}" is not one of the permitted values {}'.format(attrs.get('selected'), list(valid_choices)))
+        return attrs
