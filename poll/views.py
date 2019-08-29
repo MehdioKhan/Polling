@@ -1,5 +1,5 @@
-from .models import Poll,QuestionAnswer
-from .serializers import PollDetailsSerializer,PollListSerializer,QuestionAnswerSerializer
+from .models import Poll,PollAnswer
+from .serializers import PollDetailsSerializer,PollListSerializer,PollAnswerSerializer
 from rest_framework import generics,viewsets
 
 
@@ -14,6 +14,6 @@ class PollDetail(generics.RetrieveAPIView):
     queryset = Poll.objects.all()
 
 
-class QuestionAnswerView(viewsets.ModelViewSet):
-    serializer_class = QuestionAnswerSerializer
-    queryset = QuestionAnswer.objects.all()
+class PollAnswerView(viewsets.ModelViewSet):
+    serializer_class = PollAnswerSerializer
+    queryset = PollAnswer.objects.all()

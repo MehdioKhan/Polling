@@ -37,7 +37,7 @@ class QuestionAnswerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = QuestionAnswer
-        fields = ('question','selected','user')
+        fields = ('question','selected')
 
     def validate(self, attrs):
         valid_choices = attrs.get('question').choices.all()
@@ -45,3 +45,31 @@ class QuestionAnswerSerializer(serializers.ModelSerializer):
             raise ValidationError(
                         'Selected choice "{}" is not one of the permitted values {}'.format(attrs.get('selected'), list(valid_choices)))
         return attrs
+
+
+class PollAnswerSerializer(serializers.ModelSerializer):
+    questions_answers = QuestionAnswerSerializer(many=True)
+
+    class Meta:
+        model = PollAnswer
+        fields = ('poll','questions_answers','user')
+
+    def create(self, validated_data):
+        qas = validated_data['questions_answers']
+        qaset = set()
+        for item in qas:
+            q=QuestionAnswer.objects.create(
+                question=item['question'],
+                selected=item['selected'],
+                user=validated_data['user']
+            )
+            q.save()
+            qaset.add(q)
+        pa = PollAnswer.objects.create(
+            poll=validated_data['poll'],
+            user=validated_data['user'],
+        )
+        pa.questions_answers.set(qaset)
+
+        pa.save()
+        return pa
