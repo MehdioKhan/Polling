@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from account.models import User
 from django.core.exceptions import ValidationError
 
+
 class Poll(models.Model):
     name = models.CharField(max_length=150,blank=False,null=False)
     questions = models.ManyToManyField(to='Question')
@@ -55,6 +56,7 @@ class PollAnswer(models.Model):
     poll = models.ForeignKey(to='Poll',on_delete=models.CASCADE)
     questions_answers = models.ManyToManyField(to='QuestionAnswer')
     user = models.ForeignKey(to=User,on_delete=models.CASCADE)
+    created = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return "{} answered to {}".format(self.user,self.poll.name)
