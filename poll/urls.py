@@ -16,6 +16,7 @@ poll_answer_detail = views.PollAnswerView.as_view({
 urlpatterns = [
     path('poll/list',views.PollList.as_view(),name='poll_list'),
     path('poll/<int:pk>',views.PollDetail.as_view(),name='poll_detail'),
-    # path('poll/answer/<int:pk>',poll_answer_detail),
-    path('poll/answer',poll_answer_list)
+    path('poll/answer/<slug:param>',views.answer_poll_by_link),
+    path('poll/answer',poll_answer_list),
+    path('poll/link',views.poll_link_create)
 ]
