@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Poll,Question,Choice,PollAnswer,QuestionAnswer
+from .models import Poll,Question,Choice,PollAnswer,QuestionAnswer,RequestedPoll
 from rest_framework.exceptions import ValidationError
 
 
@@ -37,11 +37,11 @@ class QuestionAnswerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = QuestionAnswer
-        fields = ('question','selected')
+        fields = ('question','answer')
 
     def validate(self, attrs):
         valid_choices = attrs.get('question').choices.all()
-        if attrs.get('selected') not in valid_choices:
+        if attrs.get('answer') not in valid_choices:
             raise ValidationError(
                         'Selected choice "{}" is not one of the permitted values {}'.format(attrs.get('selected'), list(valid_choices)))
         return attrs
@@ -52,24 +52,40 @@ class PollAnswerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PollAnswer
-        fields = ('poll','questions_answers','user')
+        fields = ('poll','questions_answers','from_user','to_user')
 
     def create(self, validated_data):
+        print(validated_data)
         qas = validated_data['questions_answers']
         qaset = set()
         for item in qas:
-            q=QuestionAnswer.objects.create(
+            q = QuestionAnswer.objects.create(
                 question=item['question'],
-                selected=item['selected'],
-                user=validated_data['user']
+                answer=item['answer'],
+                from_user=validated_data['from_user'],
+                to_user=validated_data['to_user']
             )
             q.save()
             qaset.add(q)
         pa = PollAnswer.objects.create(
             poll=validated_data['poll'],
-            user=validated_data['user'],
+            from_user=validated_data['from_user'],
+            to_user=validated_data['to_user'],
         )
         pa.questions_answers.set(qaset)
 
         pa.save()
         return pa
+
+
+class RequestedPollCreateSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = RequestedPoll
+        fields = ('user','poll')
+
+
+class RequestedPollSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RequestedPoll
+        fields = ('user','poll','url_param')
