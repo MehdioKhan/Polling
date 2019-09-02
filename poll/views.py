@@ -2,8 +2,9 @@ from .models import Poll,PollAnswer,RequestedPoll
 from .serializers import PollDetailsSerializer,PollListSerializer,\
     PollAnswerSerializer,RequestedPollCreateSerializer,RequestedPollSerializer
 from rest_framework import generics,viewsets
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view,permission_classes
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
 
 
 class PollList(generics.ListAPIView):
@@ -23,6 +24,7 @@ class PollAnswerView(viewsets.ModelViewSet):
 
 
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def poll_link_create(request):
     serializer = RequestedPollCreateSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
