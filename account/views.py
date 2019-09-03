@@ -13,6 +13,7 @@ from .authentication import token_expire_handler, expires_in
 from django.contrib.auth import authenticate
 
 
+@permission_classes([AllowAny])
 class UserSignup(generics.CreateAPIView):
     serializer_class = UserSignupSerializer
 
@@ -59,3 +60,9 @@ def delete_token(user):
 def logout(request):
     delete_token(request.user)
     return Response('Logged out')
+
+
+@api_view(['GET'])
+def logged_in_user_details(request):
+    user_serializer = UserSerializer(request.user)
+    return Response(user_serializer.data)
