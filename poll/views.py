@@ -8,11 +8,13 @@ from rest_framework.permissions import IsAuthenticated,AllowAny
 
 
 class PollList(generics.ListAPIView):
+    permission_classes = (AllowAny)
     serializer_class = PollListSerializer
     queryset = Poll.objects.all()
 
 
 class PollDetail(generics.RetrieveAPIView):
+    permission_classes = (AllowAny,)
     serializer_class = PollDetailsSerializer
     lookup_field = 'pk'
     queryset = Poll.objects.all()
