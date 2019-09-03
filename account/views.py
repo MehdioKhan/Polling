@@ -1,7 +1,7 @@
 from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework.decorators import api_view,permission_classes
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated,AllowAny
 from .serializers import UserSignupSerializer,UserSerializer,UserAuthTokenSerializer
 from django.utils import timezone
 from rest_framework.authtoken.models import Token
@@ -12,6 +12,7 @@ class UserSignup(generics.CreateAPIView):
 
 
 @api_view(['POST'])
+@permission_classes([AllowAny,])
 def login(request):
     serializer = UserAuthTokenSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)

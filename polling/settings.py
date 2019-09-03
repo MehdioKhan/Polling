@@ -123,11 +123,11 @@ USE_TZ = True
 # REST setup
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework.authentication.TokenAuthentication',
+        'account.authentication.ExpiringTokenAuthentication',
     ),
-    # 'DEFAULT_PERMISSION_CLASSES': (
-    #     'rest_framework.permissions.IsAuthenticated',
-    # )
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    )
 }
 
 # Static files (CSS, JavaScript, Images)
@@ -136,5 +136,7 @@ REST_FRAMEWORK = {
 STATIC_URL = '/static/'
 
 CORS_ORIGIN_ALLOW_ALL = True
+
+TOKEN_EXPIRED_AFTER_SECONDS = 60 * 60 * 3
 
 django_heroku.settings(locals())
