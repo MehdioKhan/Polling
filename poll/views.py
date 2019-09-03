@@ -4,7 +4,7 @@ from .serializers import PollDetailsSerializer,PollListSerializer,\
 from rest_framework import generics,viewsets
 from rest_framework.decorators import api_view,permission_classes
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated,AllowAny
 
 
 class PollList(generics.ListAPIView):
@@ -39,6 +39,7 @@ def poll_link_create(request):
 
 
 @api_view(['GET'])
+@permission_classes([AllowAny])
 def answer_poll_by_link(request,param):
     from_user = request.user
     try:
