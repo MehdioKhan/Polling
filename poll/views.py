@@ -30,7 +30,10 @@ def poll_link_create(request):
     if serializer.is_valid():
         obj = serializer.save()
     else:
-        obj = RequestedPoll.objects.get(poll=request.data.get('poll'),user=request.data.get('user'))
+        if request.data.get('poll') and request.data.get('user'):
+            obj = RequestedPoll.objects.get(poll=request.data.get('poll'),user=request.data.get('user'))
+        else:
+            return Response(serializer.errors)
     link_serializer = RequestedPollSerializer(obj)
     return Response(link_serializer.data)
 
