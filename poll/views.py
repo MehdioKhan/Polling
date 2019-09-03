@@ -27,10 +27,9 @@ class PollAnswerView(viewsets.ModelViewSet):
 @permission_classes([IsAuthenticated])
 def poll_link_create(request):
     serializer = RequestedPollCreateSerializer(data=request.data)
-    try:
-        serializer.is_valid(raise_exception=True)
+    if serializer.is_valid():
         obj = serializer.save()
-    except Exception:
+    else:
         obj = RequestedPoll.objects.get(poll=request.data.get('poll'),user=request.data.get('user'))
     link_serializer = RequestedPollSerializer(obj)
     return Response(link_serializer.data)
