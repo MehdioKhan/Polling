@@ -114,3 +114,4 @@ class ResultAnswerSerializer(serializers.Serializer):
 class ResultSerializer(serializers.Serializer):
     question = serializers.CharField()
     answer = ResultAnswerSerializer(many=True)
+    avg = serializers.FloatField()

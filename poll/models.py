@@ -44,6 +44,14 @@ class Question(models.Model):
         else:
             raise ValueError('No one answered yet')
 
+    def average(self,user,poll):
+        result = 0
+        total = self.total_answers_count(user,poll)
+        for c in self.choices.all():
+            answer = self.answer.filter(to_user=user, poll_answer__poll=poll, answer=c)
+            result += (answer.count()/total*100)*c.value
+        return result/total
+
 
 class Choice(models.Model):
     text = models.CharField(max_length=250,blank=True,null=False)

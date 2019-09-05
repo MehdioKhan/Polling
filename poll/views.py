@@ -56,12 +56,11 @@ def answer_poll_by_link(request,param):
 
 def calc(user, poll):
     q = Question.objects.filter(answer__to_user=user).distinct()
-
     result = []
     for x in q.all():
         percents = x.choices_percentage(user,poll)
         result.append(
-            {'question': x.body, 'answer': percents}
+            {'question': x.body, 'answer': percents,'avg':x.average(user,poll)}
         )
     return result
 
