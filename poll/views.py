@@ -1,6 +1,7 @@
-from .models import Poll,PollAnswer,RequestedPoll
+from .models import Poll,PollAnswer,RequestedPoll,Question,Choice,QuestionAnswer
 from .serializers import PollDetailsSerializer,PollListSerializer,\
-    PollAnswerSerializer,RequestedPollCreateSerializer,RequestedPollSerializer
+    PollAnswerSerializer,RequestedPollCreateSerializer,RequestedPollSerializer,\
+    PollAnswerDetailsSerializer,ResultSerializer,ResultAnswerSerializer,QuestionSerializer
 from rest_framework import generics,viewsets
 from rest_framework.decorators import api_view,permission_classes
 from rest_framework.response import Response
@@ -45,9 +46,34 @@ def poll_link_create(request):
 def answer_poll_by_link(request,param):
     from_user = request.user
     try:
-        obj=RequestedPoll.objects.get(url_param=param)
+        obj = RequestedPoll.objects.get(url_param=param)
     except RequestedPoll.DoesNotExist:
         return Response('Invalid Parameter')
     to_user = obj.user
     poll = obj.poll
     return Response({'poll':poll.id,'from_user':from_user.id,'to_user':to_user.id})
+
+
+def calc(user, poll):
+    q = Question.objects.filter(answer__to_user=user).distinct()
+
+    result = []
+    for x in q.all():
+        percents = x.choices_percentage(user,poll)
+        result.append(
+            {'question': x.body, 'answer': percents}
+        )
+    return result
+
+
+@api_view(['GET'])
+def get_poll_answers(request):
+    user = request.user
+    poll = request.GET.get('poll')
+    if poll:
+        res = calc(user,int(poll))
+        ser = ResultSerializer(data=res,many=True)
+        ser.is_valid(raise_exception=True)
+    else:
+        return Response('Poll Required')
+    return Response(ser.data)

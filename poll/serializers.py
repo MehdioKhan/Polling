@@ -55,7 +55,6 @@ class PollAnswerSerializer(serializers.ModelSerializer):
         fields = ('poll','questions_answers','from_user','to_user')
 
     def create(self, validated_data):
-        print(validated_data)
         qas = validated_data['questions_answers']
         qaset = set()
         for item in qas:
@@ -89,3 +88,29 @@ class RequestedPollSerializer(serializers.ModelSerializer):
     class Meta:
         model = RequestedPoll
         fields = ('user','poll','url_param')
+
+
+class QuestionAnswerDetailsSerializer(serializers.ModelSerializer):
+    question = QuestionSerializer(read_only=True)
+
+    class Meta:
+        model = QuestionAnswer
+        fields = ('question','answer')
+
+
+class PollAnswerDetailsSerializer(serializers.ModelSerializer):
+    questions_answers = QuestionAnswerDetailsSerializer(many=True,read_only=True)
+
+    class Meta:
+        model = PollAnswer
+        fields = ('poll','questions_answers')
+
+
+class ResultAnswerSerializer(serializers.Serializer):
+    choice = serializers.CharField()
+    percentage = serializers.FloatField()
+
+
+class ResultSerializer(serializers.Serializer):
+    question = serializers.CharField()
+    answer = ResultAnswerSerializer(many=True)
