@@ -2,7 +2,6 @@ from django.db import models
 from django.contrib.auth.models import User
 from account.models import User
 from django.core.exceptions import ValidationError
-from django.urls import reverse
 import uuid
 
 
@@ -17,11 +16,30 @@ class Poll(models.Model):
 
 class Question(models.Model):
     body = models.CharField(max_length=150,blank=False,null=False)
-    choices = models.ManyToManyField(to='Choice')
+    choices = models.ManyToManyField(to='Choice',related_name='question')
     created = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.body
+
+    def total_answers_count(self,user,poll):
+        return self.answer.filter(to_user=user,poll_answer__poll=poll).count()
+
+    def choices_answers_count(self,user,poll):
+        result = {}
+        for c in self.choices.all():
+            result[c] = self.answer.filter(to_user=user,poll_answer__poll=poll,answer=c).count()
+        return result
+
+    def choices_percentage(self,user,poll):
+        result = []
+        choice_answers_count = self.choices_answers_count(user,poll)
+        total_answers = self.total_answers_count(user,poll)
+        for k,v in choice_answers_count.items():
+            result.append({
+                'choice': k.text, 'percentage': v/total_answers*100
+            })
+        return result
 
 
 class Choice(models.Model):
@@ -54,7 +72,7 @@ class QuestionAnswer(models.Model):
 
 class PollAnswer(models.Model):
     poll = models.ForeignKey(to='Poll',on_delete=models.CASCADE)
-    questions_answers = models.ManyToManyField(to='QuestionAnswer')
+    questions_answers = models.ManyToManyField(to='QuestionAnswer',related_name='poll_answer')
     from_user = models.ForeignKey(to=User,on_delete=models.CASCADE,related_name='answered_to')
     to_user = models.ForeignKey(to=User,on_delete=models.CASCADE,related_name='answers')
     created = models.DateTimeField(auto_now_add=True)
