@@ -71,9 +71,13 @@ def get_poll_answers(request):
     user = request.user
     poll = request.GET.get('poll')
     if poll:
-        res = calc(user,int(poll))
-        ser = ResultSerializer(data=res,many=True)
-        ser.is_valid(raise_exception=True)
+        try:
+            obj = Poll.objects.get(pk=poll)
+            res = calc(user,obj.pk)
+            ser = ResultSerializer(data=res,many=True)
+            ser.is_valid(raise_exception=True)
+        except Poll.DoesNotExist:
+            return Response('Invalid Poll')
     else:
         return Response('Poll Required')
     return Response(ser.data)
