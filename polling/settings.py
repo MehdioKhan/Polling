@@ -137,6 +137,6 @@ STATIC_URL = '/static/'
 
 CORS_ORIGIN_ALLOW_ALL = True
 
-TOKEN_EXPIRED_AFTER_SECONDS = 60 * 60 * 3
+TOKEN_EXPIRED_AFTER_SECONDS = 60 * 60 * 24 * 2
 
 django_heroku.settings(locals())
