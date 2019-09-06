@@ -10,6 +10,9 @@ class Poll(models.Model):
     questions = models.ManyToManyField(to='Question')
     created = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        ordering = ('-created',)
+
     def __str__(self):
         return self.name
 
@@ -18,6 +21,9 @@ class Question(models.Model):
     body = models.CharField(max_length=150,blank=False,null=False)
     choices = models.ManyToManyField(to='Choice',related_name='question')
     created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ('-created',)
 
     def __str__(self):
         return self.body
@@ -58,6 +64,9 @@ class Choice(models.Model):
     value = models.IntegerField()
     created = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        ordering = ('-created','-value')
+
     def __str__(self):
         return '{0} - {1}'.format(self.text,str(self.value))
 
@@ -69,6 +78,9 @@ class QuestionAnswer(models.Model):
     from_user = models.ForeignKey(to=User,on_delete=models.CASCADE,related_name='answered_to_question')
     to_user = models.ForeignKey(to=User,on_delete=models.CASCADE,related_name='question_answers')
     created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ('-created',)
 
     def __str__(self):
         return "{} selected {} for {}".format(self.from_user,self.answer.text,self.question.body)
@@ -88,6 +100,9 @@ class PollAnswer(models.Model):
     to_user = models.ForeignKey(to=User,on_delete=models.CASCADE,related_name='answers')
     created = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        ordering = ('-created',)
+
     def __str__(self):
         return "{} answered to {} for {}".format(self.from_user,self.poll.name,self.to_user)
 
@@ -100,6 +115,7 @@ class RequestedPoll(models.Model):
 
     class Meta:
         unique_together = (('user','poll'),)
+        ordering = ('-created',)
 
     def __str__(self):
         return self.url_param
