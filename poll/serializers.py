@@ -107,11 +107,11 @@ class PollAnswerDetailsSerializer(serializers.ModelSerializer):
 
 
 class ResultAnswerSerializer(serializers.Serializer):
-    choice = serializers.CharField()
+    choice = ChoiceSerializer()
     percentage = serializers.FloatField()
 
 
 class ResultSerializer(serializers.Serializer):
-    question = serializers.CharField()
+    question = QuestionSerializer(read_only=True)
     answer = ResultAnswerSerializer(many=True)
     avg = serializers.FloatField()

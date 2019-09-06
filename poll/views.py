@@ -1,7 +1,8 @@
 from .models import Poll,PollAnswer,RequestedPoll,Question,Choice,QuestionAnswer
 from .serializers import PollDetailsSerializer,PollListSerializer,\
     PollAnswerSerializer,RequestedPollCreateSerializer,RequestedPollSerializer,\
-    PollAnswerDetailsSerializer,ResultSerializer,ResultAnswerSerializer,QuestionSerializer
+    PollAnswerDetailsSerializer,ResultSerializer,\
+    ResultAnswerSerializer,QuestionSerializer,ChoiceSerializer
 from rest_framework import generics,viewsets
 from rest_framework.decorators import api_view,permission_classes
 from rest_framework.response import Response
@@ -59,8 +60,11 @@ def calc(user, poll):
     result = []
     for x in q.all():
         percents = x.choices_percentage(user,poll)
+        temp = []
+        for p in percents:
+            temp.append({'choice':ChoiceSerializer(p[0]).data,'percentage':p[1]})
         result.append(
-            {'question': x.body, 'answer': percents,'avg':x.average(user,poll)}
+            {'question': QuestionSerializer(x).data, 'answer': temp,'avg':x.average(user,poll)}
         )
     return result
 

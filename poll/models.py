@@ -43,9 +43,7 @@ class Question(models.Model):
         if total_answers:
             choice_answers_count = self.choices_answers_count(user,poll)
             for k,v in choice_answers_count.items():
-                result.append({
-                    'choice': k.text, 'percentage': v/total_answers*100
-                })
+                result.append((k,v/total_answers*100))
             return result
         else:
             raise ValueError('No one answered yet')
