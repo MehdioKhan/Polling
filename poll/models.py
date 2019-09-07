@@ -43,7 +43,7 @@ class Question(models.Model):
         if total_answers:
             choice_answers_count = self.choices_answers_count(user,poll)
             for k,v in choice_answers_count.items():
-                result.append((k,v/total_answers*100))
+                result.append((k,v/total_answers))
             return result
         else:
             raise ValueError('No one answered yet')
@@ -53,8 +53,10 @@ class Question(models.Model):
         total = self.total_answers_count(user,poll)
         for c in self.choices.all():
             answer = self.answer.filter(to_user=user, poll_answer__poll=poll, answer=c)
-            result += (answer.count()/total*100)*c.value
-        return result/total
+            result += answer.count()*c.value
+        old_value = result / total * (100 / self.choices.count())
+        # new_value = old_value/2 + 50
+        return old_value
 
 
 class Choice(models.Model):
