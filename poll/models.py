@@ -50,12 +50,12 @@ class Question(models.Model):
 
     def average(self,user,poll):
         result = 0
-        total = self.total_answers_count(user,poll)
-        for c in self.choices.all():
-            answer = self.answer.filter(to_user=user, poll_answer__poll=poll, answer=c)
-            result += answer.count()*c.value
-        old_value = result / total * (100 / self.choices.count())
-        # new_value = old_value/2 + 50
+        total = 0
+        for c in self.choices.all().exclude(value=0):
+            count = self.answer.filter(to_user=user, poll_answer__poll=poll, answer=c).count()
+            result += count*c.value
+            total += count
+        old_value = result / total * (100 / (self.choices.count()//2))
         return old_value
 
 
