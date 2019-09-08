@@ -112,6 +112,6 @@ class ResultAnswerSerializer(serializers.Serializer):
 
 
 class ResultSerializer(serializers.Serializer):
-    question = QuestionSerializer(read_only=True)
+    question = QuestionSerializer()
     answer = ResultAnswerSerializer(many=True)
     avg = serializers.FloatField()
