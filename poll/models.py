@@ -85,7 +85,7 @@ class QuestionAnswer(models.Model):
     created = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        ordering = ('-created',)
+        ordering = ('-question',)
 
     def __str__(self):
         return "{} selected {} for {}".format(self.from_user,self.answer.text,self.question.body)
