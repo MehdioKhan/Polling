@@ -63,7 +63,6 @@ class Question(models.Model):
         return avg
 
 
-
 class Choice(models.Model):
     text = models.CharField(max_length=250,blank=True,null=False)
     value = models.IntegerField()
