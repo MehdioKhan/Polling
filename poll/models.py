@@ -49,18 +49,19 @@ class Question(models.Model):
             raise ValueError('No one answered yet')
 
     def average(self,user,poll):
-        result = 0
+        sum = 0
         total = 0
         choices = self.choices.all().exclude(value=0)
-        if choices.count() != 0:
+        try:
             for c in choices:
                 count = self.answer.filter(to_user=user, poll_answer__poll=poll, answer=c).count()
-                result += count*c.value
+                sum += count*c.value
                 total += count
-            old_value = result / total * (100 / (self.choices.count()//2))
-            return old_value
-        else:
-            return 0
+            avg = sum / total * (100 / (self.choices.count()//2))
+        except ZeroDivisionError:
+            avg = 0
+        return avg
+
 
 
 class Choice(models.Model):
