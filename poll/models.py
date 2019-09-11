@@ -20,10 +20,11 @@ class Poll(models.Model):
 class Question(models.Model):
     body = models.CharField(max_length=150,blank=False,null=False)
     choices = models.ManyToManyField(to='Choice',related_name='question')
+    position = models.PositiveIntegerField()
     created = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        ordering = ('-created',)
+        ordering = ('position','created',)
 
     def __str__(self):
         return self.body
@@ -84,7 +85,7 @@ class QuestionAnswer(models.Model):
     created = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        ordering = ('-question',)
+        ordering = ('question',)
 
     def __str__(self):
         return "{} selected {} for {}".format(self.from_user,self.answer.text,self.question.body)
