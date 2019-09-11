@@ -1,8 +1,9 @@
-from rest_framework import generics
+from rest_framework import generics,mixins
 from rest_framework.response import Response
 from rest_framework.decorators import api_view,permission_classes
 from rest_framework.permissions import IsAuthenticated,AllowAny
-from .serializers import UserSignupSerializer,UserSerializer,UserSignInSerializer
+from .serializers import UserSignupSerializer,UserSerializer,\
+    UserSignInSerializer,UserProfileSerializer
 from rest_framework.authtoken.models import Token
 from rest_framework.status import (
     HTTP_400_BAD_REQUEST,
@@ -11,6 +12,7 @@ from rest_framework.status import (
 )
 from .authentication import token_expire_handler, expires_in
 from django.contrib.auth import authenticate
+from .models import User
 
 
 @permission_classes([AllowAny])
@@ -66,3 +68,11 @@ def logout(request):
 def logged_in_user_details(request):
     user_serializer = UserSerializer(request.user)
     return Response(user_serializer.data)
+
+
+class UserProfileChange(generics.RetrieveUpdateAPIView):
+    serializer_class = UserProfileSerializer
+    lookup_field = 'pk'
+
+    def get_queryset(self):
+        return User.objects.filter(pk=self.request.user.pk)
