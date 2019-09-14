@@ -10,7 +10,7 @@ from rest_framework.permissions import IsAuthenticated,AllowAny
 
 
 class PollList(generics.ListAPIView):
-    permission_classes = (AllowAny)
+    permission_classes = (AllowAny,)
     serializer_class = PollListSerializer
     queryset = Poll.objects.all()
 
