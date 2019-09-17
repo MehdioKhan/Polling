@@ -29,7 +29,7 @@ class PollAnswerView(viewsets.ModelViewSet):
 
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated,])
 def poll_link_create(request):
     serializer = RequestedPollCreateSerializer(data=request.data)
     if serializer.is_valid():
@@ -44,7 +44,7 @@ def poll_link_create(request):
 
 
 @api_view(['GET'])
-@permission_classes([AllowAny])
+@permission_classes([AllowAny,])
 def answer_poll_by_link(request,param):
     try:
         obj = RequestedPoll.objects.get(url_param=param)
@@ -70,6 +70,7 @@ def calc(user, poll):
 
 
 @api_view(['GET'])
+@permission_classes([IsAuthenticated,])
 def get_poll_answers(request):
     user = request.user
     poll = request.GET.get('poll')
