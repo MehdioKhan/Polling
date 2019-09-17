@@ -23,6 +23,7 @@ class PollDetail(generics.RetrieveAPIView):
 
 
 class PollAnswerView(viewsets.ModelViewSet):
+    permission_classes = (AllowAny,)
     serializer_class = PollAnswerSerializer
     queryset = PollAnswer.objects.all()
 
