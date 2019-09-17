@@ -45,14 +45,13 @@ def poll_link_create(request):
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def answer_poll_by_link(request,param):
-    from_user = request.user
     try:
         obj = RequestedPoll.objects.get(url_param=param)
     except RequestedPoll.DoesNotExist:
         return Response('Invalid Parameter')
     to_user = obj.user
     poll = obj.poll
-    return Response({'poll':poll.id,'from_user':from_user.id,'to_user':to_user.id})
+    return Response({'poll':poll.id,'to_user':to_user.id})
 
 
 def calc(user, poll):

@@ -52,7 +52,7 @@ class PollAnswerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PollAnswer
-        fields = ('poll','questions_answers','from_user','to_user')
+        fields = ('poll','questions_answers','to_user')
 
     def create(self, validated_data):
         qas = validated_data['questions_answers']
@@ -61,14 +61,12 @@ class PollAnswerSerializer(serializers.ModelSerializer):
             q = QuestionAnswer.objects.create(
                 question=item['question'],
                 answer=item['answer'],
-                from_user=validated_data['from_user'],
                 to_user=validated_data['to_user']
             )
             q.save()
             qaset.add(q)
         pa = PollAnswer.objects.create(
             poll=validated_data['poll'],
-            from_user=validated_data['from_user'],
             to_user=validated_data['to_user'],
         )
         pa.questions_answers.set(qaset)
