@@ -32,7 +32,7 @@ def login(request):
         password=signin_serializer.data['password']
     )
     if not user:
-        return Response({'detail': 'Invalid Credentials or activate account'}, status=HTTP_404_NOT_FOUND)
+        return Response({'detail':'Invalid Credentials or inactive account'}, status=HTTP_404_NOT_FOUND)
 
     # TOKEN STUFF
     token, _ = Token.objects.get_or_create(user=user)
@@ -61,7 +61,7 @@ def delete_token(user):
 @permission_classes([IsAuthenticated])
 def logout(request):
     delete_token(request.user)
-    return Response('Logged out')
+    return Response({'detail':'Logged out'})
 
 
 @api_view(['GET'])
