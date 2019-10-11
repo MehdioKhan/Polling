@@ -2,7 +2,16 @@ from django.db import models
 from django.contrib.auth.models import User
 from account.models import User
 from django.core.exceptions import ValidationError
+from django.conf import settings
 import uuid
+
+
+class Translation(models.Model):
+    language_code = models.CharField(max_length=25,blank=False,choices=settings.LANGUAGES)
+    translation = models.CharField(max_length=250,blank=False)
+
+    class Meta:
+        abstract = True
 
 
 class Poll(models.Model):
@@ -15,6 +24,14 @@ class Poll(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class PollTranslation(Translation):
+    poll = models.ForeignKey(to='Poll',on_delete=models.CASCADE,
+                                related_name='translation')
+
+    def __str__(self):
+        return "{} translation in {}".format(self.poll.__str__(),self.language_code)
 
 
 class Question(models.Model):
@@ -64,6 +81,14 @@ class Question(models.Model):
         return avg
 
 
+class QuestionTranslation(Translation):
+    question = models.ForeignKey(to='Question',on_delete=models.CASCADE,
+                                    related_name='translation')
+
+    def __str__(self):
+        return "{} translation in {}".format(self.question.__str__(),self.language_code)
+
+
 class Choice(models.Model):
     text = models.CharField(max_length=250,blank=True,null=False)
     value = models.IntegerField()
@@ -74,6 +99,14 @@ class Choice(models.Model):
 
     def __str__(self):
         return '{0} - {1}'.format(self.text,str(self.value))
+
+
+class ChoiceTranslation(Translation):
+    choice = models.ForeignKey(to='Choice',on_delete=models.CASCADE,
+                                  related_name='translation')
+
+    def __str__(self):
+        return "{} translation in {}".format(self.choice.__str__(),self.language_code)
 
 
 class QuestionAnswer(models.Model):
