@@ -142,12 +142,6 @@ class PollAnswer(models.Model):
     def __str__(self):
         return "answer to {} for {}".format(self.poll.name,self.to_user)
 
-    def full_clean(self, exclude=None, validate_unique=True):
-        for qa in self.questions_answers.all():
-            if qa.to_user is not self.to_user:
-                raise ValidationError('You must choose question answers with same To User')
-        super(PollAnswer,self).full_clean(exclude=exclude,validate_unique=validate_unique)
-
 
 class RequestedPoll(models.Model):
     user = models.ForeignKey(to=User,on_delete=models.CASCADE)
