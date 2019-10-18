@@ -1,8 +1,7 @@
 from .models import Poll,PollAnswer,RequestedPoll,Question,Choice,QuestionAnswer
 from .serializers import PollDetailsSerializer,PollListSerializer,\
     PollAnswerSerializer,RequestedPollCreateSerializer,RequestedPollSerializer,\
-    PollAnswerDetailsSerializer,ResultSerializer,\
-    ResultAnswerSerializer,QuestionSerializer,ChoiceSerializer
+    QuestionSerializer,ChoiceSerializer
 from rest_framework import generics,viewsets
 from rest_framework.decorators import api_view,permission_classes
 from rest_framework.response import Response
@@ -31,7 +30,7 @@ class PollAnswerView(viewsets.ModelViewSet):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated,])
 def poll_link_create(request):
-    serializer = RequestedPollCreateSerializer(data=request.data)
+    serializer = RequestedPollCreateSerializer(data=request.data,context={'request':request})
     if serializer.is_valid():
         obj = serializer.save()
     else:
@@ -39,7 +38,7 @@ def poll_link_create(request):
             obj = RequestedPoll.objects.get(poll=request.data.get('poll'),user=request.data.get('user'))
         else:
             return Response(serializer.errors)
-    link_serializer = RequestedPollSerializer(obj)
+    link_serializer = RequestedPollSerializer(obj,context={'request':request})
     return Response(link_serializer.data)
 
 
@@ -55,16 +54,18 @@ def answer_poll_by_link(request,param):
     return Response({'poll':poll.id,'to_user':to_user.id})
 
 
-def calc(user, poll):
+def calc(context,user, poll):
     q = Question.objects.filter(answer__to_user=user).distinct()
     result = []
     for x in q.all():
         percents = x.choices_percentage(user,poll)
-        temp = []
+        answers = []
         for p in percents:
-            temp.append({'choice':ChoiceSerializer(p[0]).data,'percentage':p[1]})
+            c = ChoiceSerializer(p[0],context=context)
+            answers.append({'choice':c.data,'percentage':p[1]})
+        q = QuestionSerializer(x,context=context)
         result.append(
-            {'question': QuestionSerializer(x).data, 'answer': temp,'avg':x.average(user,poll)}
+            {'question': q.data, 'answer': answers,'avg':x.average(user,poll)}
         )
     return result
 
@@ -77,11 +78,9 @@ def get_poll_answers(request):
     if poll:
         try:
             obj = Poll.objects.get(pk=poll)
-            res = calc(user,obj.pk)
-            ser = ResultSerializer(data=res,many=True)
-            ser.is_valid(raise_exception=True)
+            res = calc({'request':request},user,obj.pk)
         except Poll.DoesNotExist:
             return Response('Invalid Poll')
     else:
         return Response('Poll Required')
-    return Response(ser.data)
+    return Response(res)

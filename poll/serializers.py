@@ -23,12 +23,17 @@ class ChoiceSerializer(serializers.ModelSerializer):
 
 
 class QuestionSerializer(serializers.ModelSerializer):
-    choices = ChoiceSerializer(many=True,read_only=True)
+    choices = serializers.SerializerMethodField('get_choice_serializer')
     body = serializers.SerializerMethodField('get_translated_body')
 
     class Meta:
         model = Question
         fields = ('pk','body','choices')
+
+    def get_choice_serializer(self,instance):
+        choices = Choice.objects.filter(question=instance.pk)
+        serializer = ChoiceSerializer(choices,many=True,read_only=True,context=self.context)
+        return serializer.data
 
     def get_translated_body(self,instance):
         language = self.context.get('request').META.get('HTTP_ACCEPT_LANGUAGE')[:2].lower()
@@ -42,12 +47,17 @@ class QuestionSerializer(serializers.ModelSerializer):
 
 
 class PollDetailsSerializer(serializers.ModelSerializer):
-    questions = QuestionSerializer(many=True,read_only=True)
+    questions = serializers.SerializerMethodField('get_question_serializer')
     name = serializers.SerializerMethodField('get_translated_name')
 
     class Meta:
         model = Poll
         fields = ('id','name','questions')
+
+    def get_question_serializer(self,instance):
+        qs = Question.objects.filter(poll=instance.pk)
+        serializer = QuestionSerializer(qs,many=True,read_only=True,context=self.context)
+        return serializer.data
 
     def get_translated_name(self,instance):
         language = self.context.get('request').META.get('HTTP_ACCEPT_LANGUAGE')[:2].lower()
@@ -93,11 +103,16 @@ class QuestionAnswerSerializer(serializers.ModelSerializer):
 
 
 class PollAnswerSerializer(serializers.ModelSerializer):
-    questions_answers = QuestionAnswerSerializer(many=True)
+    questions_answers = serializers.SerializerMethodField('get_question_answer_serializer')
 
     class Meta:
         model = PollAnswer
         fields = ('poll','questions_answers','to_user')
+
+    def get_question_answer_serializer(self,instance):
+        qas = QuestionAnswer.objects.filter(poll_answer=instance.pk)
+        serializer = QuestionAnswerSerializer(qas,many=True,context=self.context)
+        return serializer.data
 
     def create(self, validated_data):
         qas = validated_data['questions_answers']
@@ -134,27 +149,36 @@ class RequestedPollSerializer(serializers.ModelSerializer):
 
 
 class QuestionAnswerDetailsSerializer(serializers.ModelSerializer):
-    question = QuestionSerializer(read_only=True)
+    question = serializers.SerializerMethodField('get_question_serializer')
 
     class Meta:
         model = QuestionAnswer
         fields = ('question','answer')
 
+    def get_question_serializer(self,instance):
+        qs = Question.objects.filter(poll=instance.pk)
+        serializer = QuestionSerializer(qs,read_only=True,context=self.context)
+        return serializer.data
+
 
 class PollAnswerDetailsSerializer(serializers.ModelSerializer):
-    questions_answers = QuestionAnswerDetailsSerializer(many=True,read_only=True)
+    questions_answers = serializers.SerializerMethodField('get_question_answer_serializer')
 
     class Meta:
         model = PollAnswer
         fields = ('poll','questions_answers')
 
+    def get_question_answer_serializer(self,instance):
+        qas = QuestionAnswer.objects.filter(poll_answer=instance.pk)
+        serializer = QuestionAnswerDetailsSerializer(qas,many=True,read_only=True,context=self.context)
+        return serializer.data
+
 
 class ResultAnswerSerializer(serializers.Serializer):
-    choice = ChoiceSerializer()
+    choice = serializers.SerializerMethodField('get_choice_serializer')
     percentage = serializers.FloatField()
 
-
-class ResultSerializer(serializers.Serializer):
-    question = QuestionSerializer()
-    answer = ResultAnswerSerializer(many=True)
-    avg = serializers.FloatField()
+    def get_choice_serializer(self,instance):
+        c = Choice.objects.filter(question=instance.pk)
+        serializer = ChoiceSerializer(c,context=self.context)
+        return serializer.data
