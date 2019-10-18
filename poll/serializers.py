@@ -103,16 +103,11 @@ class QuestionAnswerSerializer(serializers.ModelSerializer):
 
 
 class PollAnswerSerializer(serializers.ModelSerializer):
-    questions_answers = serializers.SerializerMethodField('get_question_answer_serializer')
+    questions_answers = QuestionAnswerSerializer(many=True)
 
     class Meta:
         model = PollAnswer
         fields = ('poll','questions_answers','to_user')
-
-    def get_question_answer_serializer(self,instance):
-        qas = QuestionAnswer.objects.filter(poll_answer=instance.pk)
-        serializer = QuestionAnswerSerializer(qas,many=True,context=self.context)
-        return serializer.data
 
     def create(self, validated_data):
         qas = validated_data['questions_answers']
